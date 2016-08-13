@@ -12,3 +12,12 @@
 //--------------------------------------------------------------------------------//
 //  Revision 0.01 - File Created                                                  //
 //--------------------------------------------------------------------------------//
+module alu #(
+ parameter                        OPCODE_WIDTH = 3,
+ parameter                        DATA_WIDTH = 8
+)(
+ input [DATA_WIDTH-1:0]           i_data_A,
+ input [DATA_WIDTH-1:0]           i_data_B,
+ input [OPCODE_WIDTH-1:0]         i_control,
+ input [DATA_WIDTH-1:0]           o_data 
+)
