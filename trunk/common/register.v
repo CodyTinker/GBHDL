@@ -5,9 +5,9 @@
 //  Author       : Kevin Millar                                                   //
 //                 Cody Tinker                                                    //
 //                                                                                //
-//  Description: Generic register module                                          //
+//  Description  : Generic register module                                        //
 //                                                                                //
-//  Dependencies: None                                                            //
+//  Dependencies : None                                                           //
 //                                                                                //
 //--------------------------------------------------------------------------------//
 //  Revision 0.01 - File Created                                                  //
