@@ -23,7 +23,7 @@ module register_file #(
   input                              i_rd_en,
   input  [ADDRESS_WIDTH-1:0]         i_addr,
   input  [DATA_WIDTH-1:0]            i_data,
-  output [DATA_WIDTH-1:0]            o_data,
+  output reg [DATA_WIDTH-1:0]            o_data,
   output [DATA_WIDTH*2-1:0]          o_addr_data
 );
 
@@ -83,75 +83,76 @@ module register_file #(
   register #(
     .DATA_WIDTH(8)
   ) Register_A(
-    .i_clk(i_clk)
-    .i_reset(i_reset)
-    .i_we(reigster_A_wr_en)
-    .i_data(i_data)
+    .i_clk(i_clk),
+    .i_reset(i_reset),
+    .i_we(reigster_A_wr_en),
+    .i_data(i_data),
     .o_data(register_A_o_data)
   );
   
   register #(
     .DATA_WIDTH(8)
   ) Register_B(
-    .i_clk(i_clk)
-    .i_reset(i_reset)
-    .i_we(reigster_B_wr_en)
-    .i_data(i_data)
+    .i_clk(i_clk),
+    .i_reset(i_reset),
+    .i_we(reigster_B_wr_en),
+    .i_data(i_data),
     .o_data(register_B_o_data)
   );
   
   register #(
     .DATA_WIDTH(8)
   ) Register_C(
-    .i_clk(i_clk)
-    .i_reset(i_reset)
-    .i_we(reigster_C_wr_en)
-    .i_data(i_data)
+    .i_clk(i_clk),
+    .i_reset(i_reset),
+    .i_we(reigster_C_wr_en),
+    .i_data(i_data),
     .o_data(register_C_o_data)
   );
   
   register #(
     .DATA_WIDTH(8)
   ) Register_D(
-    .i_clk(i_clk)
-    .i_reset(i_reset)
-    .i_we(reigster_D_wr_en)
-    .i_data(i_data)
+    .i_clk(i_clk),
+    .i_reset(i_reset),
+    .i_we(reigster_D_wr_en),
+    .i_data(i_data),
     .o_data(register_D_o_data)
   );
   
   register #(
     .DATA_WIDTH(8)
   ) Register_E(
-    .i_clk(i_clk)
-    .i_reset(i_reset)
-    .i_we(reigster_E_wr_en)
-    .i_data(i_data)
+    .i_clk(i_clk),
+    .i_reset(i_reset),
+    .i_we(reigster_E_wr_en),
+    .i_data(i_data),
     .o_data(register_E_o_data)
   );
   
   register #(
     .DATA_WIDTH(8)
   ) Register_H(
-    .i_clk(i_clk)
-    .i_reset(i_reset)
-    .i_we(reigster_H_wr_en)
-    .i_data(i_data)
+    .i_clk(i_clk),
+    .i_reset(i_reset),
+    .i_we(reigster_H_wr_en),
+    .i_data(i_data),
     .o_data(register_H_o_data)
   );
   
   register #(
     .DATA_WIDTH(8)
   ) Register_L(
-    .i_clk(i_clk)
-    .i_reset(i_reset)
-    .i_we(reigster_L_wr_en)
-    .i_data(i_data)
+    .i_clk(i_clk),
+    .i_reset(i_reset),
+    .i_we(reigster_L_wr_en),
+    .i_data(i_data),
     .o_data(register_L_o_data)
   );
   
   //Register Read Mux
-  always @(posedge clk)
+  always @(posedge i_clk)
+    begin
     if (i_rd_en)
       case (i_addr)
         3'h0 : o_data <= register_B_o_data;
