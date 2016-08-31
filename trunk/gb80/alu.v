@@ -10,7 +10,7 @@
 //  Dependencies:  None                                                           //
 //                                                                                //
 //--------------------------------------------------------------------------------//
-//  Revision 0.01 - File Created                                                  //
+//  Revision 0.02 - Added flags output                                            //
 //--------------------------------------------------------------------------------//
 module alu #(
  parameter                        OPCODE_WIDTH = 3,
@@ -19,5 +19,6 @@ module alu #(
  input [DATA_WIDTH-1:0]           i_data_A,
  input [DATA_WIDTH-1:0]           i_data_B,
  input [OPCODE_WIDTH-1:0]         i_control,
- input [DATA_WIDTH-1:0]           o_data 
+ input [DATA_WIDTH-1:0]           o_data,
+ output [DATA_WIDTH-1:0]          o_flags
 )

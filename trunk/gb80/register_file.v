@@ -21,9 +21,10 @@ module register_file #(
   input                              i_reset,
   input                              i_wr_en,
   input                              i_rd_en,
+  input                              i_rd_addr_en,
   input  [ADDRESS_WIDTH-1:0]         i_addr,
   input  [DATA_WIDTH-1:0]            i_data,
-  output reg [DATA_WIDTH-1:0]            o_data,
+  output reg [DATA_WIDTH-1:0]        o_data,
   output [DATA_WIDTH*2-1:0]          o_addr_data
 );
 
@@ -77,6 +78,8 @@ module register_file #(
       3'h7 : register_sel = 8'h80; //A
     endcase
   end 
+  
+  
   
   //Registers
   //NOTE: Consider generating registers with generate statement?
@@ -161,9 +164,25 @@ module register_file #(
         3'h3 : o_data <= register_E_o_data;
         3'h4 : o_data <= register_H_o_data;
         3'h5 : o_data <= register_L_o_data;
-        3'h6 : o_data <= register_B_o_data;
+        3'h6 : o_data <= {DATA_WIDTH{1'b0}};
         3'h7 : o_data <= register_A_o_data;
         default : o_data <= {DATA_WIDTH{1'b0}};
+      endcase
+    end
+    
+  
+  //FIXME: Look into how reading onto the address bus should be implemented
+  //Register Read Mux
+  always @(posedge i_clk)
+    begin
+    if (i_rd_addr_en)
+      case (i_addr)
+      //Addr                  {         LSB     ,        MSB       }
+        3'h0 : o_data_addr <= {register_C_o_data, register_B_o_data};
+        3'h1 : o_data_addr <= {register_E_o_data, register_D_o_data};
+        3'h2 : o_data_addr <= {register_L_o_data, register_H_o_data};
+        3'h3 : o_data_addr <= {register_C_o_data, register_B_o_data};
+        default : o_data_addr <= {(DATA_WIDTH*2){1'b0}};
       endcase
     end
     
