@@ -1,6 +1,6 @@
 //--------------------------------------------------------------------------------//
 //  Project Name : GB80                                                           //
-//  Module Name  : controller_sequence.v                                          //
+//  Module Name  : controller_sequencer.v                                          //
 //  Create Date  : August, 2016                                                   //
 //  Author       : Kevin Millar                                                   //
 //                 Cody Tinker                                                    //
@@ -12,3 +12,6 @@
 //--------------------------------------------------------------------------------//
 //  Revision 0.01 - File Created                                                  //
 //--------------------------------------------------------------------------------//
+module controller_sequencer #(
+)(
+)

@@ -22,3 +22,19 @@ module alu #(
  input [DATA_WIDTH-1:0]           o_data,
  output [DATA_WIDTH-1:0]          o_flags
 )
+
+//The general functions the alu needs to be able to perform are:
+//    Add       
+//    Subtract  
+//    Logical AND 
+//    Logical OR 
+//    Logical Exclusive OR
+//    Compare
+//    Left or Right Shifts (both arithmetic and logical)
+//    Increment
+//    Decrement
+//    Set bit
+//    Reset bit
+//    Test bit
+
+endmodule

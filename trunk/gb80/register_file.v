@@ -24,6 +24,7 @@ module register_file #(
   input                              i_rd_addr_en,
   input  [ADDRESS_WIDTH-1:0]         i_addr,
   input  [DATA_WIDTH-1:0]            i_data,
+  input  [DATA_WIDTH*2-1:0]          i_addr_data_in,
   output reg [DATA_WIDTH-1:0]        o_data,
   output [DATA_WIDTH*2-1:0]          o_addr_data
 );
@@ -53,13 +54,27 @@ module register_file #(
   reg  [DATA_WIDTH-1:0] register_L_i_data;
   wire [DATA_WIDTH-1:0] register_L_o_data;  
   
-  //Register Mapping
+  wire                  reigster_PC_wr_en;
+  reg  [DATA_WIDTH-1:0] register_PC_i_data;
+  wire [DATA_WIDTH-1:0] register_PC_o_data;  
+  
+  //Register Mapping 
+  //General Purpose Registers
   //From the Z80 Hardware Orginazation document 
   //CODE	REGISTER	CODE	REGISTER
   //0 0 0	   B	    1 0 0	   H
   //0 0 1	   C	    1 0 1	   L
   //0 1 0	   D	    1 1 0	-(MEMORY)
   //0 1 1	   E	    1 1 1	   A
+  
+  //Addressing Registers
+  //Arbitrarily made up (Havn't seen standard)
+  //Still need IX, IY, SP
+  //CODE	REGISTER	CODE	REGISTER
+  //0 0 0	   BC	    1 0 0	   -
+  //0 0 1	   DE	    1 0 1	   -
+  //0 1 0	   HL	    1 1 0	   -
+  //0 1 1	   PC	    1 1 1	   -
   
   //NOTE: Still unsure if the accumulator register (A)
   //is stored in the register file alongside the other 
@@ -82,6 +97,8 @@ module register_file #(
   
   
   //Registers
+  
+  //8-bit registers  (General Purpose Registers)
   //NOTE: Consider generating registers with generate statement?
   register #(
     .DATA_WIDTH(8)
@@ -91,7 +108,7 @@ module register_file #(
     .i_we(reigster_A_wr_en),
     .i_data(i_data),
     .o_data(register_A_o_data)
-  );
+  ); //FIXME: Does this register belong here???
   
   register #(
     .DATA_WIDTH(8)
@@ -153,9 +170,19 @@ module register_file #(
     .o_data(register_L_o_data)
   );
   
+  //16-bit registers
+  register #(
+    .DATA_WIDTH(16)
+  ) Register_PC(
+    .i_clk(i_clk),
+    .i_reset(i_reset),
+    .i_we(reigster_PC_wr_en),
+    .i_data(i_addr_data_in),
+    .o_data(register_PC_o_data)
+  );
+  
   //Register Read Mux
-  always @(posedge i_clk)
-    begin
+  always @(posedge i_clk) begin
     if (i_rd_en)
       case (i_addr)
         3'h0 : o_data <= register_B_o_data;
@@ -168,23 +195,22 @@ module register_file #(
         3'h7 : o_data <= register_A_o_data;
         default : o_data <= {DATA_WIDTH{1'b0}};
       endcase
-    end
+  end
     
   
   //FIXME: Look into how reading onto the address bus should be implemented
   //Register Read Mux
-  always @(posedge i_clk)
-    begin
+  always @(posedge i_clk) begin
     if (i_rd_addr_en)
       case (i_addr)
       //Addr                  {         LSB     ,        MSB       }
-        3'h0 : o_data_addr <= {register_C_o_data, register_B_o_data};
-        3'h1 : o_data_addr <= {register_E_o_data, register_D_o_data};
-        3'h2 : o_data_addr <= {register_L_o_data, register_H_o_data};
-        3'h3 : o_data_addr <= {register_C_o_data, register_B_o_data};
+        3'h0 : o_data_addr <= {register_B_o_data, register_C_o_data};
+        3'h1 : o_data_addr <= {register_D_o_data, register_E_o_data};
+        3'h2 : o_data_addr <= {register_H_o_data, register_L_o_data};
+        3'h3 : o_data_addr <= register_PC_o_data;
         default : o_data_addr <= {(DATA_WIDTH*2){1'b0}};
       endcase
-    end
+  end
     
   //Register Write Enables
   assign reigster_A_wr_en = register_sel[7] & i_wr_en;
