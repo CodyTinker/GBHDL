@@ -76,14 +76,20 @@ module gb80_processor #(
   //end Registers Section ---------------------------------
   
   //Alu Section -------------------------------------------
+  wire [7:0] accumulator_data_out;
+  wire [7:0] temporary_data_out;
+  wire [7:0] accumulator_temp_data_out;
+  wire [7:0] alu_flags_data_out;
+       
+  
   register #(
   .DATA_WIDTH(8)
   ) inst_accumulator_reg (
   .i_clk(i_clk),
   .i_reset(),
   .i_we(),
-  .i_data(),                        //[DATA_WIDTH-1:0]
-  .o_data()                         //[DATA_WIDTH-1:0]
+  .i_data(g_data_bus),                        //[DATA_WIDTH-1:0]
+  .o_data(accumulator_data_out)                         //[DATA_WIDTH-1:0]
   );
   
   register #(
@@ -92,8 +98,8 @@ module gb80_processor #(
   .i_clk(i_clk),
   .i_reset(),
   .i_we(),
-  .i_data(),                        //[DATA_WIDTH-1:0]
-  .o_data()                         //[DATA_WIDTH-1:0]
+  .i_data(accumulator_data_out),                        //[DATA_WIDTH-1:0]
+  .o_data(accumulator_temp_data_out)                    //[DATA_WIDTH-1:0]
   );
   
   register #(
@@ -102,19 +108,19 @@ module gb80_processor #(
   .i_clk(i_clk),
   .i_reset(),
   .i_we(),
-  .i_data(),                        //[DATA_WIDTH-1:0]
-  .o_data()                         //[DATA_WIDTH-1:0]
+  .i_data(g_data_bus),                        //[DATA_WIDTH-1:0]
+  .o_data(temporary_data_out)                         //[DATA_WIDTH-1:0]
   );
   
   alu #(
   .OPCODE_WIDTH(3),
   .DATA_WIDTH(8)
   ) inst_alu (
-  .i_data_A(),                      //[DATA_WIDTH-1:0]  
-  .i_data_B(),                      //[DATA_WIDTH-1:0]  
+  .i_data_A(accumulator_temp_data_out),    //[DATA_WIDTH-1:0]  
+  .i_data_B(temporary_data_out),                      //[DATA_WIDTH-1:0]  
   .i_control(),                     //[OPCODE_WIDTH-1:0]
   .o_data(),                        //[DATA_WIDTH-1:0]  
-  .o_flags()                        //[DATA_WIDTH-1:0]
+  .o_flags(alu_flags_data_out)                        //[DATA_WIDTH-1:0]
   )
   
   register #(
@@ -123,7 +129,7 @@ module gb80_processor #(
   .i_clk(i_clk),
   .i_reset(),
   .i_we(),
-  .i_data(),                        //[DATA_WIDTH-1:0]
+  .i_data(alu_flags_data_out),                        //[DATA_WIDTH-1:0]
   .o_data()                         //[DATA_WIDTH-1:0]
   );
   
