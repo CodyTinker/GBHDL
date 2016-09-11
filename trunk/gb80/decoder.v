@@ -13,7 +13,19 @@
 //  Revision 0.01 - File Created                                                  //
 //--------------------------------------------------------------------------------//
 module decoder #(
+  parameter                 DATA_WIDTH = 8,
+  parameter                 ADDR_WIDTH = 3
 )(
+  input                     i_clk,
+  input                     i_reset,
+  //Bus pins
+  input [DATA_WIDTH-1:0]    i_data_in,
+  
+  //Sequencer pins
+  output                    o_opcode_type,
+  output [DATA_WIDTH-1:0]   o_literal_value,
+  output [ADDR_WIDTH-1:0]   o_addr_A,
+  output [ADDR_WIDTH-1:0]   o_addr_B
 )
 
 endmodule
