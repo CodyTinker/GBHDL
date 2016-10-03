@@ -21,7 +21,7 @@ module alu #(
  input [OPCODE_WIDTH-1:0]         i_control,
  input [DATA_WIDTH-1:0]           o_data,
  output [DATA_WIDTH-1:0]          o_flags
-)
+);
 
 //The general functions the alu needs to be able to perform are:
 //    Add       

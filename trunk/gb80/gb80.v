@@ -18,18 +18,20 @@ module gb80_processor #(
   input                             i_clk,
   input                             i_reset,
   input [7:0]                       i_memory_data,
+  output                            o_memory_rd,
+  output                            o_memory_wr,
   output [15:0]                     o_memory_addr
 );
 
   //Global Signal and Bus definitons
   wire [7:0]                        g_data_bus;
   
-  assign g_data_bus <= i_memory_data || reg_file_data_out || temporary_reg_data_mux_out || alu_data_mux_out;
+  assign g_data_bus = i_memory_data || reg_file_data_out || temporary_reg_data_mux_out || alu_data_mux_out;
   
   //Control Section ---------------------------------------
   wire [7:0] inst_reg_data;
   
-  wire decoder_opcode_type;
+  wire [3:0] decoder_opcode_type;
   wire [7:0] decoder_literal_value;
   wire [2:0] decoder_addr_A;
   wire [2:0] decoder_addr_B;
@@ -37,15 +39,21 @@ module gb80_processor #(
   
   wire [2:0] sequencer_register_file_addr;   //[ADDR_LENGTH-1:0]
   wire sequencer_register_file_wr;
+  wire sequencer_register_file_addr_wr;
   wire sequencer_register_file_rd;
+  wire sequencer_register_file_addr_rd;
   wire sequencer_accumulator_reg_wr;
   wire sequencer_tmp_reg_wr;
   wire sequencer_tmp_reg_rd;
   wire [2:0] sequencer_alu_control;  //[ALU_OPCODE_WIDTH-1:0]
   wire sequencer_alu_rd;
   wire sequencer_flags_reg_rd;
-  wire sequencer_wr_mem;
   wire sequencer_rd_mem;
+  wire sequencer_wr_mem;
+  
+  
+  assign o_memory_rd = sequencer_rd_mem;
+  assign o_memory_wr = sequencer_wr_mem;
   
   register #(
   .DATA_WIDTH(8)
@@ -57,7 +65,7 @@ module gb80_processor #(
   .o_data(inst_reg_data)            //[DATA_WIDTH-1:0]
   );
   
-  module decoder #(
+  decoder #(
   .DATA_WIDTH(8),
   .ADDR_WIDTH(3)
   ) inst_decoder (
@@ -71,9 +79,9 @@ module gb80_processor #(
   .o_literal_value(decoder_literal_value),     //[DATA_WIDTH-1:0]
   .o_addr_A(decoder_addr_A),                      //[ADDR_WIDTH-1:0]
   .o_addr_B(decoder_addr_B)                       //[ADDR_WIDTH-1:0]
-  )
+  );
   
-  module controller_sequencer #(
+  controller_sequencer #(
   .OPCODE_TYPE_LENGTH(4),
   .ALU_OPCODE_WIDTH(3),
   .ADDR_LENGTH(3),
@@ -92,7 +100,9 @@ module gb80_processor #(
   //register interface:
   .o_register_file_addr(sequencer_register_file_addr),   //[ADDR_LENGTH-1:0]
   .o_register_file_wr(sequencer_register_file_wr),
+  .o_register_file_addr_wr(sequencer_register_file_addr_wr),
   .o_register_file_rd(sequencer_register_file_rd),
+  .o_register_file_addr_rd(sequencer_register_file_addr_rd),
   
   //alu:
   .o_accumulator_reg_wr(sequencer_accumulator_reg_wr),
@@ -107,7 +117,7 @@ module gb80_processor #(
   .o_wr_mem(sequencer_wr_mem),
   .o_rd_mem(sequencer_rd_mem)
     
-  )
+  );
 
   //end Control Section -----------------------------------
   
@@ -121,7 +131,9 @@ module gb80_processor #(
   .i_clk(i_clk),
   .i_reset(i_reset),
   .i_wr_en(sequencer_register_file_wr),
+  .i_wr_addr_en(sequencer_register_file_addr_wr),
   .i_rd_en(sequencer_register_file_rd),
+  .i_rd_addr_en(sequencer_register_file_addr_rd),
   .i_addr(sequencer_register_file_addr),
   .i_data(g_data_bus),
   .i_addr_data_in(reg_file_addr_data_in),
@@ -129,15 +141,15 @@ module gb80_processor #(
   .o_addr_data(reg_file_addr_data_out)
   );
   
-  module bit_adder #(
+  bit_adder #(
   .DATA_WIDTH(16)
-)(
+  ) inst_PC_adder (
   .i_data_A(reg_file_addr_data_out),
   .i_data_B(16'h0001),
   .i_carry_in(1'b0),
   .o_sum(reg_file_addr_data_in),
-  .o_carry_out(i_reset)
-)
+  .o_carry_out()
+  );
 
   assign o_memory_addr = reg_file_addr_data_out;
   
@@ -146,13 +158,13 @@ module gb80_processor #(
   //Alu Section -------------------------------------------
   wire [7:0] accumulator_data_out;
   wire [7:0] temporary_reg_data_out;
-  wire [7:0] temporary_reg_data_mux_out;
+  reg  [7:0] temporary_reg_data_mux_out;
   wire [7:0] accumulator_temp_data_out;
   wire [7:0] alu_flags_data_out;
   wire [7:0] alu_data_out;
-  wire [7:0] alu_data_mux_out;
+  reg  [7:0] alu_data_mux_out;
   wire [7:0] flags_reg_out;
-  wire [7:0] flags_reg_mux_out;
+  reg  [7:0] flags_reg_mux_out;
   
   
   register #(
@@ -187,9 +199,9 @@ module gb80_processor #(
   
   //mux register data out for read on the data bus
   always @(*) begin : temp_reg_read_mux
-    if (sequencer_tmp_reg_rd)
+    if (sequencer_tmp_reg_rd) begin
       temporary_reg_data_mux_out <= temporary_reg_data_out;
-    else
+    end else begin
       temporary_reg_data_mux_out <= 8'h00;
     end
   end
@@ -203,13 +215,13 @@ module gb80_processor #(
   .i_control(sequencer_alu_control),                  //[OPCODE_WIDTH-1:0]
   .o_data(alu_data_out),                              //[DATA_WIDTH-1:0]  
   .o_flags(alu_flags_data_out)                        //[DATA_WIDTH-1:0]
-  )
+  );
   
   //mux register data out for read on the data bus
   always @(*) begin : alu_read_mux
-    if (sequencer_alu_rd)
+    if (sequencer_alu_rd) begin
       alu_data_mux_out <= alu_data_out;
-    else
+    end else begin
       alu_data_mux_out <= 8'h00;
     end
   end
@@ -227,13 +239,11 @@ module gb80_processor #(
   
   //mux register data out for read on the data bus
   always @(*) begin : flags_reg_read_mux
-    if (sequencer_flags_reg_rd)
+    if (sequencer_flags_reg_rd) begin
       flags_reg_mux_out <= flags_reg_out;
-    else
+    end else begin
       flags_reg_mux_out <= 8'h00;
     end
   end
   
-  //end Alu Section ---------------------------------------
-  end
 endmodule

@@ -10,7 +10,7 @@
 //  Dependencies:  None                                                           //
 //                                                                                //
 //--------------------------------------------------------------------------------//
-//  Revision 0.02 - Implemented register read and write                           //
+//  Revision 0.03 - Made register reads asynchronous                              //
 //                  NOTE: Not tested                                              //
 //--------------------------------------------------------------------------------//
 module register_file #(
@@ -20,13 +20,14 @@ module register_file #(
   input                              i_clk,
   input                              i_reset,
   input                              i_wr_en,
+  input                              i_wr_addr_en,
   input                              i_rd_en,
   input                              i_rd_addr_en,
   input  [ADDRESS_WIDTH-1:0]         i_addr,
   input  [DATA_WIDTH-1:0]            i_data,
   input  [DATA_WIDTH*2-1:0]          i_addr_data_in,
   output reg [DATA_WIDTH-1:0]        o_data,
-  output [DATA_WIDTH*2-1:0]          o_addr_data
+  output reg [DATA_WIDTH*2-1:0]          o_addr_data
 );
 
   wire [DATA_WIDTH-1:0] data_bus;
@@ -56,7 +57,7 @@ module register_file #(
   
   wire                  reigster_PC_wr_en;
   reg  [DATA_WIDTH-1:0] register_PC_i_data;
-  wire [DATA_WIDTH-1:0] register_PC_o_data;  
+  wire [DATA_WIDTH*2-1:0] register_PC_o_data;  
   
   //Register Mapping 
   //General Purpose Registers
@@ -182,7 +183,7 @@ module register_file #(
   );
   
   //Register Read Mux
-  always @(posedge i_clk) begin
+  always @(*) begin
     if (i_rd_en)
       case (i_addr)
         3'h0 : o_data <= register_B_o_data;
@@ -195,21 +196,25 @@ module register_file #(
         3'h7 : o_data <= register_A_o_data;
         default : o_data <= {DATA_WIDTH{1'b0}};
       endcase
+    else
+	   o_data <= {DATA_WIDTH{1'b0}};
   end
     
   
   //FIXME: Look into how reading onto the address bus should be implemented
   //Register Read Mux
-  always @(posedge i_clk) begin
+  always @(*) begin
     if (i_rd_addr_en)
       case (i_addr)
       //Addr                  {         LSB     ,        MSB       }
-        3'h0 : o_data_addr <= {register_B_o_data, register_C_o_data};
-        3'h1 : o_data_addr <= {register_D_o_data, register_E_o_data};
-        3'h2 : o_data_addr <= {register_H_o_data, register_L_o_data};
-        3'h3 : o_data_addr <= register_PC_o_data;
-        default : o_data_addr <= {(DATA_WIDTH*2){1'b0}};
+        3'h0 : o_addr_data <= {register_B_o_data, register_C_o_data};
+        3'h1 : o_addr_data <= {register_D_o_data, register_E_o_data};
+        3'h2 : o_addr_data <= {register_H_o_data, register_L_o_data};
+        3'h3 : o_addr_data <= register_PC_o_data;
+        default : o_addr_data <= {(DATA_WIDTH*2){1'b0}};
       endcase
+	 else
+	   o_addr_data <= {(DATA_WIDTH*2){1'b0}};
   end
     
   //Register Write Enables
@@ -219,6 +224,8 @@ module register_file #(
   assign reigster_D_wr_en = register_sel[2] & i_wr_en;
   assign reigster_E_wr_en = register_sel[3] & i_wr_en;
   assign reigster_H_wr_en = register_sel[4] & i_wr_en;
-  assign reigster_L_wr_en = register_sel[5] & i_wr_en;  
+  assign reigster_L_wr_en = register_sel[5] & i_wr_en;
+  
+  assign reigster_PC_wr_en = i_wr_addr_en;
   
 endmodule 
