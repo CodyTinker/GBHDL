@@ -184,11 +184,11 @@ module controller_sequencer #(
                                       end
       S_FETCH_PC_INC                : begin
                                       //register interface outputs (8)
-                                      o_register_file_addr <= {ADDR_LENGTH{1'b0}};
+                                      o_register_file_addr <= {{(ADDR_LENGTH-3){1'b0}}, 3'h3};
                                       o_register_file_wr <= 1'b0;
                                       o_register_file_addr_wr <= 1'b1;
                                       o_register_file_rd <= 1'b0;
-                                      o_register_file_addr_rd <= 1'b0;
+                                      o_register_file_addr_rd <= 1'b1;
                                       o_accumulator_reg_wr <= 1'b0;
                                       o_tmp_reg_wr <= 1'b0;
                                       o_tmp_reg_rd <= 1'b0;
