@@ -20,7 +20,7 @@ module bit_adder #(
   input                           i_carry_in,
   output [DATA_WIDTH-1:0]         o_sum,
   output                          o_carry_out
-)
+);
 
   assign  {o_carry_out, o_sum} = i_data_A + i_data_B + i_carry_in;
 
