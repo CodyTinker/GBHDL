@@ -31,7 +31,7 @@ module n_bit_adder #(
   genvar i;
   generate
 		for (i = 0; i < DATA_WIDTH; i = i + 1) begin
-      full_adder full_adder_inst (
+      bit_adder bit_adder_inst (
         .i_data_A (i_data_A[i]),
         .i_data_B (i_data_B[i]),
         .i_carry  (carry[i]),

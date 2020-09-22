@@ -22,8 +22,10 @@ module register #(
   output reg [DATA_WIDTH-1:0]       o_data
 );
   always@(posedge i_clk) begin : clkProcess
+    // Synchronous reset
     if (i_reset)
       o_data <= {DATA_WIDTH{1'b0}};
+    // Synchronous write enable
     else if (i_we)
       o_data <= i_data;
   end

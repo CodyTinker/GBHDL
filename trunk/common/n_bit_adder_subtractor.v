@@ -48,28 +48,28 @@ module n_bit_adder_subtractor #(
     //  1 1     SBC	 
     case(i_control)
       2'b00 : begin
-        data_B = i_data_B;
-        carry_in = 1'b0;
+        data_B     = i_data_B;
+        carry_in   = 1'b0;
         half_carry = pre_half_carry;
-        carry = pre_carry;
+        carry      = pre_carry;
       end
       2'b01 : begin
-        data_B = i_data_B;
-        carry_in = i_carry;
+        data_B     = i_data_B;
+        carry_in   = i_carry;
         half_carry = pre_half_carry;
-        carry = pre_carry;
+        carry      = pre_carry;
       end
       2'b10 : begin
-        data_B = ~i_data_B;
-        carry_in = 1'b1;
+        data_B     = ~i_data_B;
+        carry_in   = 1'b1;
         half_carry = !pre_half_carry;
-        carry = !pre_carry;
+        carry      = !pre_carry;
       end
       2'b11 : begin
-        data_B = ~i_data_B;
-        carry_in = !i_carry;
+        data_B     = ~i_data_B;
+        carry_in   = !i_carry;
         half_carry = !pre_half_carry;
-        carry = !pre_carry;
+        carry      = !pre_carry;
       end
     endcase
   end

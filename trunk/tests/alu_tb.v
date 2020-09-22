@@ -1,7 +1,5 @@
 // alu_tb.v
 
-`timescale 1 ns/10 ps  // time-unit = 1 ns, precision = 10 ps
-
 module alu_tb;
 
     reg clk, vz, vn, vh, vc;
@@ -9,6 +7,7 @@ module alu_tb;
     reg [7:0] va, vb;
     reg [2:0] control;
     reg [2:0] vcontrol;
+    reg [3:0] in_flags;
     wire [3:0] flags;
     reg [3:0] vflags;
     wire [7:0] out;
@@ -24,6 +23,7 @@ module alu_tb;
      .i_clk(clk),
      .i_data_A(a),
      .i_data_B(b),
+     .i_flags(in_flags),
      .i_control(control),
      .o_data(out),
      .o_flags(flags)
@@ -34,6 +34,7 @@ module alu_tb;
     a = 8'hFF;
     b = 8'hFF;
     control = 3'b111;
+    in_flags = 4'h1;
   end
 
   // clock period = 20 ns
@@ -59,7 +60,7 @@ module alu_tb;
     
     va = a;
     vb = b;
-    vflags = flags;
+    vflags = in_flags;
     vcontrol = control;
     
     case (vcontrol)

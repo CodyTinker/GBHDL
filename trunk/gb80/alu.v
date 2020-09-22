@@ -11,18 +11,20 @@
 //  Dependencies:  None                                                           //
 //                                                                                //
 //--------------------------------------------------------------------------------//
-//  Revision 0.03 - Added capability for 8-bit operations                         //
+//  Revision 0.04 - Added flags input from register file                          //
 //--------------------------------------------------------------------------------//
 module alu #(
- parameter                        OPCODE_WIDTH = 3,
- parameter                        DATA_WIDTH = 8
+  parameter                        OPCODE_WIDTH = 3,
+  parameter                        DATA_WIDTH = 8
 )(
- input                            i_clk,
- input [DATA_WIDTH-1:0]           i_data_A,
- input [DATA_WIDTH-1:0]           i_data_B,
- input [OPCODE_WIDTH-1:0]         i_control,
- output [DATA_WIDTH-1:0]          o_data,
- output [3:0]                     o_flags
+  input                            i_clk,
+  input [DATA_WIDTH-1:0]           i_data_A,
+  input [DATA_WIDTH-1:0]           i_data_B,
+  input                            i_data_rd_en,
+  input [OPCODE_WIDTH-1:0]         i_control,
+  input [3:0]                      i_flags,
+  output [DATA_WIDTH-1:0]          o_data,
+  output [3:0]                     o_flags
 );
   
   reg                       carry_in;
@@ -57,7 +59,7 @@ module alu #(
   )n_bit_adder_subtractor_inst (
     .i_data_A     (i_data_A),
     .i_data_B     (i_data_B),
-    .i_carry      (flags[0]),
+    .i_carry      (i_flags[0]),
     .i_control    ({i_control[1], !i_control[2] && i_control[0]}),
     .o_result     (sum),
     .o_half_carry (half_carry),
@@ -106,7 +108,7 @@ module alu #(
     flags <= nxt_flags;
   end
   
-  assign o_data  = data;
+  assign o_data  = {DATA_WIDTH{i_data_rd_en}} & data;
   assign o_flags = flags;
 
   //    Left or Right Shifts (both arithmetic and logical)
